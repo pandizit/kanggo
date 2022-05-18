@@ -67,75 +67,106 @@ class _NoteView extends State<NoteView> {
       appBar: AppBar(title: const Text('Aplikasi Note'), centerTitle: true),
       body: RefreshIndicator(
         onRefresh: onrefresh,
-        child: !loading
-            ? ListView.builder(
-                itemCount: daftar.length,
-                itemBuilder: ((context, index) {
-                  return Column(children: [
-                    ListTile(
-                      onTap: () {
-                        Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) =>
-                                    NoteInfoView(catatan: daftar[index])));
-                      },
-                      onLongPress: () {
-                        showDialog(
-                            context: context,
-                            builder: (context) {
-                              return AlertDialog(
-                                title: Text('Hapus Item ini?'),
-                                actions: [
-                                  TextButton(
-                                      onPressed: () {
-                                        Navigator.pop(context);
-                                        firebaseFirestore
-                                            .collection('catatan')
-                                            .doc(daftar[index].id)
-                                            .delete()
-                                            .then((value) {
-                                          setState(() {
-                                            daftar.removeAt(index);
-                                          });
-                                        });
-                                      },
-                                      child: Text('Ya')),
-                                  TextButton(
-                                      onPressed: () {
-                                        Navigator.pop(context);
-                                      },
-                                      child: Text('Tidak'))
-                                ],
-                              );
-                            });
-                      },
-                      leading: Icon(Icons.book,
-                          color: Theme.of(context).primaryColor),
-                      title: Text(
-                        daftar[index].judul,
-                        style: const TextStyle(
-                            fontWeight: FontWeight.bold, fontSize: 18),
-                      ),
-                      subtitle: Text(daftar[index].isi),
-                      trailing: GestureDetector(
-                        onTap: () async {
-                          var reload = await Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                  builder: (context) =>
-                                      NoteEditView(catatan: daftar[index])));
-                          if (reload != null) {
-                            fill();
-                          }
-                        },
-                        child: Icon(Icons.edit_note),
-                      ),
+        child: Column(
+          children: [
+            Padding(
+              padding: const EdgeInsets.all(5),
+              child: Container(
+                decoration: const BoxDecoration(
+                    borderRadius: BorderRadius.all(Radius.circular(15)),
+                    color: Colors.yellow),
+                child: Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: SizedBox(
+                    width: double.infinity,
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(
+                          'Petunjuk :',
+                          style: TextStyle(fontWeight: FontWeight.bold),
+                        ),
+                        Text('- Tap dan tahan untuk menghapus'),
+                        Text('- Scroll ke bawah untuk reload database'),
+                      ],
                     ),
-                    Divider()
-                  ]);
-                }))
-            : Center(child: CircularProgressIndicator()),
+                  ),
+                ),
+              ),
+            ),
+            Divider(),
+            !loading
+                ? Expanded(
+                    child: ListView.builder(
+                        itemCount: daftar.length,
+                        itemBuilder: ((context, index) {
+                          return Column(children: [
+                            ListTile(
+                              onTap: () {
+                                Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                        builder: (context) => NoteInfoView(
+                                            catatan: daftar[index])));
+                              },
+                              onLongPress: () {
+                                showDialog(
+                                    context: context,
+                                    builder: (context) {
+                                      return AlertDialog(
+                                        title: Text('Hapus Item ini?'),
+                                        actions: [
+                                          TextButton(
+                                              onPressed: () {
+                                                Navigator.pop(context);
+                                                firebaseFirestore
+                                                    .collection('catatan')
+                                                    .doc(daftar[index].id)
+                                                    .delete()
+                                                    .then((value) {
+                                                  setState(() {
+                                                    daftar.removeAt(index);
+                                                  });
+                                                });
+                                              },
+                                              child: Text('Ya')),
+                                          TextButton(
+                                              onPressed: () {
+                                                Navigator.pop(context);
+                                              },
+                                              child: Text('Tidak'))
+                                        ],
+                                      );
+                                    });
+                              },
+                              leading: Icon(Icons.book,
+                                  color: Theme.of(context).primaryColor),
+                              title: Text(
+                                daftar[index].judul,
+                                style: const TextStyle(
+                                    fontWeight: FontWeight.bold, fontSize: 18),
+                              ),
+                              subtitle: Text(daftar[index].isi),
+                              trailing: GestureDetector(
+                                onTap: () async {
+                                  var reload = await Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                          builder: (context) => NoteEditView(
+                                              catatan: daftar[index])));
+                                  if (reload != null) {
+                                    fill();
+                                  }
+                                },
+                                child: Icon(Icons.edit_note),
+                              ),
+                            ),
+                            Divider()
+                          ]);
+                        })))
+                : Center(child: CircularProgressIndicator()),
+          ],
+        ),
       ),
       floatingActionButton: FloatingActionButton(
         child: const Icon(Icons.add),
